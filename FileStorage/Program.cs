@@ -29,7 +29,7 @@ namespace DataFileStorageSample
     /// <summary>
     /// Azure 文件存储示例 - 演示如何使用文件存储服务
     /// 
-    /// 注意：这个示例使用.NET 4.5异步编程模型来演示如何使用storage client libraries异步API调用存储服务。 在实际的应用中这种方式
+    /// 注意：这个示例使用.NET 4.5异步编程模型来演示如何使用存储客户端库的异步API调用存储服务。 在实际的应用中这种方式
     /// 可以提高程序的响应速度。调用存储服务只要添加关键字await为前缀即可。
     /// 
     /// 参考文档: 
@@ -47,7 +47,7 @@ namespace DataFileStorageSample
         // 使用说明: 这个示例可以通过修改App.Config文档中的存储账号和存储密匙的方式针对存储服务来使用。   
         //   
         // 使用Azure存储服务来运行这个示例
-        //      1. 在Azure门户网站上创建存储账号，然后修改App.Config的存储账号和存储密钥。更多详细内容请阅读：https://www.azure.cn/documentation/articles/storage-dotnet-how-to-use-blobs/
+        //      1. 在Azure门户网站上创建存储账号，然后修改App.Config的存储账号和存储密钥。更多详细内容请阅读：https://www.azure.cn/documentation/articles/storage-dotnet-how-to-use-files/
         //      2. 设置断点，然后使用F10按钮运行这个示例. 
         // 
         // *************************************************************************************************************************        
@@ -55,7 +55,7 @@ namespace DataFileStorageSample
         {
             Console.WriteLine("Azure 文件存储示例\n ");
 
-            // 创建共享、上传文件、下载文件、列出文件和目录、复制文件、终止复制文件、范围写、列出所有的范围
+            // 创建共享、上传文件、下载文件、列出文件和文件夹、复制文件、终止复制文件、写入范围、列出范围
             RunFileStorageOperationsAsync().Wait();
 
             Console.WriteLine("按任意键退出");
@@ -63,25 +63,25 @@ namespace DataFileStorageSample
         }
 
         /// <summary>
-        /// 测试文件存储的操作
+        /// 测试一些文件存储的操作
         /// </summary>
         private static async Task RunFileStorageOperationsAsync()
         {
             try
             {
-                //***** Setup *****//
-                Console.WriteLine("Getting reference to the storage account.");
+                //***** 设定 *****//
+                Console.WriteLine("获取存储账号的引用.");
 
-                // 通过连接字符串找到存储账号的信息
+                // 通过连接字符串检索存储账号的信息
                 CloudStorageAccount storageAccount = CreateStorageAccountFromConnectionString(CloudConfigurationManager.GetSetting("StorageConnectionString"));
 
-                Console.WriteLine("实例化文件操作客户端.");
+                Console.WriteLine("实例化文件客户端.");
 
-                // 创建一个cloudFileClient和服务存储交互
+                // 创建一个文件客户端用于和文件服务交互
                 CloudFileClient cloudFileClient = storageAccount.CreateCloudFileClient();
 
                 // 创建共享名 -- 使用guid作为名称的一部分，这样可以确保唯一性
-                // 这同时也用于存储容器的名字 
+                // 这同时也适用于后面创建的存储容器的名字
                 string shareName = "demotest-" + System.Guid.NewGuid().ToString().Substring(0, 12);
 
                 // 放置文件的文件夹的名字
@@ -93,12 +93,12 @@ namespace DataFileStorageSample
                 // HelloWorld.png存在的文件夹 
                 string localFolder = @".\";
 
-                // 它不会exe文件一样可以让你下载到相同的文件中，所以使用一个和共享一样的临时文件夹 so use a temporary folder with the same name as the share.
+                // 它不会让你下载到和exe文件同样文件夹中，所以使用一个和共享一样名字的临时文件夹
                 string downloadFolder = Path.Combine(Path.GetTempPath(), shareName);
 
                 //***** 创建一个文件共享 *****//
 
-                // 在文件共享不存在的时候创建
+                // 在共享不存时创建
                 Console.WriteLine("创建的共享名： {0}", shareName);
                 CloudFileShare cloudFileShare = cloudFileClient.GetShareReference(shareName);
                 try
@@ -121,17 +121,17 @@ namespace DataFileStorageSample
                     throw;
                 }
 
-                //***** 在共享上创建目录 *****//
+                //***** 在文件共享上创建目录 *****//
 
                 // 在共享上创建目录.
-                Console.WriteLine("创建目录： {0}", sourceFolder);
+                Console.WriteLine("创建的目录名： {0}", sourceFolder);
 
                 // 首先，获取根目录引用，这是您创建新目录的地方
                 CloudFileDirectory rootDirectory = cloudFileShare.GetRootDirectoryReference();
                 CloudFileDirectory fileDirectory = null;
 
                 // 设置文件目录的引用
-                // 如果源文件夹为null，然后试用根文件夹
+                // 如果源文件夹为null，然后使用根文件夹
                 // 如果已经指定源文件夹，就得到它的引用
                 if (string.IsNullOrWhiteSpace(sourceFolder))
                 {
@@ -160,9 +160,9 @@ namespace DataFileStorageSample
                 string sourceFile = Path.Combine(localFolder, testFile);
                 if (File.Exists(sourceFile))
                 {
-                    // 上传本地文件到Azure的文件共享中
+                    // 上传本地文件到Azure的文件共享
                     await cloudFile.UploadFromFileAsync(sourceFile, FileMode.OpenOrCreate);
-                    Console.WriteLine("上传文件到共享成果.");
+                    Console.WriteLine("上传文件到共享成功.");
                 }
                 else
                 {
@@ -183,7 +183,7 @@ namespace DataFileStorageSample
                     Console.WriteLine("    - {0} (type: {1})", listItem.Uri, listItem.GetType());
                 }
 
-                Console.WriteLine("Getting list of all files/directories in the file directory on the share.");
+                Console.WriteLine("获取共享中文件目录下所有的文件/目录.");
 
                 // 现在获得您目录下的所有文件/目录
                 // 通常，你需要使用递归来列出所有的目录和子目录
@@ -199,8 +199,8 @@ namespace DataFileStorageSample
 
                 //***** 从文件共享下载文件 *****//
 
-                // 下载文件到临时目录的下载文件夹
-                // 检查，如果目录不存在，创建它
+                // 下载文件到临时目录的downloadFolder文件夹中
+                // 检查，如果目录不存在，则创建
                 Console.WriteLine("从共享下载文件到本地的临时文件夹 {0}.", downloadFolder);
                 if (!Directory.Exists(downloadFolder))
                 {
@@ -214,16 +214,16 @@ namespace DataFileStorageSample
                 //***** 从文件共享复制文件到blob存储中，然后终止复制 *****//
 
                 // 为了测试这个，您需要找一个大点的文件，否则在终止复制时复制可能已经完成
-                // 你需要上传文件到共享。然后您能够将文件的名字赋值到testFile变量，然后使用这个文件复制终止
+                // 你需要上传文件到共享。然后您能够将文件的名字赋值到testFile变量，然后使用这个文件复制和终止复制
                 CloudFile cloudFileCopy = fileDirectory.GetFileReference(testFile);
 
                 // 上传文件到文件共享
-                Console.WriteLine("Uploading file {0} to share", testFile);
+                Console.WriteLine("上传文件 {0} 到共享", testFile);
 
                 // 设置本地文件名字路径
                 string sourceFileCopy = Path.Combine(localFolder, testFile);
                 await cloudFileCopy.UploadFromFileAsync(sourceFileCopy, FileMode.OpenOrCreate);
-                Console.WriteLine("   上传文件到共享成果.");
+                Console.WriteLine("   上传文件到共享成功.");
 
                 // 复制文件到blob存储中.
                 Console.WriteLine("复制文件到blob存储中. 容器名 = {0}", shareName);
@@ -261,7 +261,7 @@ namespace DataFileStorageSample
 
                 // 终止复制文件到blob存储
                 // 注意，您可以终止目标对象，例如blob，而不是文件。
-                // 如果你正从一个文件到另一个文件共享复制文件，目标对象应该是文件 
+                // 如果您在文件共享中正从一个文件复制到另一个，目标对象应该是文件 
                 Console.WriteLine("取消复制操作.");
 
                 // 打印出复制状态信息
@@ -270,7 +270,7 @@ namespace DataFileStorageSample
                 Console.WriteLine("    targetBlob.copystate.Status = {0}", targetBlob.CopyState.Status);
 
                 // 真正的终止复制
-                // 如果复制是pending或者ongoing的状态这仍然工作
+                // 如果复制是pending或者ongoing的状态才工作
                 if (targetBlob.CopyState.Status == CopyStatus.Pending)
                 {
                     // 通过传递操作的copyID来停止复制
@@ -287,16 +287,16 @@ namespace DataFileStorageSample
                 // 现在自己清理一下
                 Console.WriteLine("共文件共享中删除文件.");
 
-                // 删除文件，因为在示例范围内cloudFile是一个不同的文件
+                // 删除文件，在范围示例中cloudFile将会不同
                 cloudFile = fileDirectory.GetFileReference(testFile);
                 cloudFile.DeleteIfExists();
 
                 Console.WriteLine("设置文件来测试WriteRange和ListRanges.");
 
-                //***** 向文件中写入2范围，然后列出范围 *****//
+                //***** 向文件中写入2个范围，然后列出范围 *****//
 
                 // 这个代码是展示给文件的一定范围写入数据，然后列出范围
-                // 得到文件的引用然后写入数据范围
+                // 得到文件的引用然后在一个范围内写入数据
                 // 然后写入另一个范围
                 // 列出范围
 
@@ -312,13 +312,13 @@ namespace DataFileStorageSample
                 string textToStream = string.Empty;
                 textToStream = textToStream.PadRight(testStreamLen, 'a');
 
-                // 当下载所使用到的文件的名字，所以您可以在本地检查下
+                // 下载时所使用到的文件的名字，所以您可以在本地检查下
                 string downloadFile;
 
                 using (MemoryStream ms = new MemoryStream(Encoding.Default.GetBytes(textToStream)))
                 {
                     // 输出文件的最大尺寸；在创建文件是需要指定
-                    // 我随意的数据
+                    // 下面是我随意的数据
                     long maxFileSize = 65536;
 
                     Console.WriteLine("写入第一个范围.");
@@ -337,8 +337,8 @@ namespace DataFileStorageSample
                         Console.WriteLine("    空文件创建成功.");
                     }
 
-                    // 从文件startOffset开始处到整个流的长度间写入流
-                    Console.WriteLine("Writing range to file.");
+                    // 从文件的startOffset位置开始写入这个流，写入的长度为整个流的长度
+                    Console.WriteLine("写入一个范围到文件中.");
                     await cloudFile.WriteRangeAsync(ms, startOffset, null);
 
                     // 下载文件到您的临时目录中，我们可以在本地检查它
@@ -348,17 +348,13 @@ namespace DataFileStorageSample
                     Console.WriteLine("    下载拥有范围数据的用于检查的文件成功.");
                 }
 
-                // 现在添加第二个范围，但是不要与第一个相邻，否则它将以一个范围展示，让他们有1000个空格键的距离。当您获取会范围的时候，
-                // it will 
-                //   start at the position at the 512-multiple border prior or equal to the beginning of the data written,
-                //   and it will end at the 512-multliple border after the actual end of the data.
-                //For example, if you write to 2000-3000, the range will be the 512-multiple prior to 2000, which is 
-                //   position 1536, or offset 1535 (because it's 0-based).
-                //   And the right offset of the range will be the 512-multiple after 3000, which is position 3072,
-                //   or offset 3071 (because it's 0-based).
+                // 现在添加第二个范围，但是不要与第一个相邻，否则它将以一个范围展示，让他们有1000个空格键的距离。当您获取范围的时候，
+                // 开始的位置是写入位置前最接近写入位置的512的倍数，结束位置是真实写入位置后最接近真实写入位置的512倍数。
+                // 例如，您在2000-3000写入范围，开始的位置是2000之前最靠近2000的512的倍数，这个位置是1536，offset是1535(计数是以0开始的)。
+                // 右边的偏移量是3000后最靠近3000的512的倍数，这个位置是3072，offset是3071(计数是以0开始的)           
                 Console.WriteLine("准备第二个范围到文件中.");
 
-                startOffset += testStreamLen + 1000; //随机选择的范围
+                startOffset += testStreamLen + 1000; //随机选择的数字
 
                 // 创建一个512个"b"的字符串用于写入范围
                 textToStream = string.Empty;
@@ -369,7 +365,7 @@ namespace DataFileStorageSample
 
                     ms.Position = 0;
 
-                    // 从文件startOffset开始处到整个流的长度间写入流
+                    // 从文件的startOffset位置开始写入这个流，写入的长度为整个流的长度
                     Console.WriteLine("写入第二个范围到文件.");
                     await cloudFile.WriteRangeAsync(ms, startOffset, null);
                     Console.WriteLine("   写入第二个范围到文件成功.");
@@ -410,7 +406,7 @@ namespace DataFileStorageSample
                 }
                 else
                 {
-                    Console.WriteLine("    文件共享中的目录删除成功；可能不存在.");
+                    Console.WriteLine("    文件共享中的目录没有删除成功；可能不存在.");
                 }
 
                 Console.WriteLine("删除文件共享.");
