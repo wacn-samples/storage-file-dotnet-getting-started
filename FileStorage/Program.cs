@@ -65,7 +65,7 @@ namespace DataFileStorageSample
         /// <summary>
         /// 测试一些文件存储的操作
         /// </summary>
-        private static async Task RunFileStorageOperationsAsync()
+        private static async Task RunFileStorageOperationsAsync() 
         {
             try
             {
